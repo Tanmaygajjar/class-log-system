@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<title>Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+background:#F5F6F7;
+font-family:Arial;
+}
+
+.card{
+background:#F0EDE5;
+border:none;
+border-radius:10px;
+}
+
+h3{
+color:#004643;
+}
+
+.btn-enter{
+background:#004643;
+color:white;
+border:none;
+}
+
+.btn-enter:hover{
+background:#003532;
+color:white;
+}
+
+.btn-exit{
+background:#2F2F33;
+color:white;
+border:none;
+}
+
+.btn-exit:hover{
+background:#1f1f22;
+color:white;
+}
+
+.btn-warning:hover{
+color:black;
+}
+
+.btn{
+transition:0.2s;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+<div class="card shadow">
+
+<div class="card-body">
+
+<h3>Welcome {{name}}</h3>
+
+<a href="/logout" class="btn btn-dark float-end">Logout</a>
+
+<hr>
+
+<div class="d-flex gap-3 mb-4">
+
+<a href="/enter" class="btn btn-enter">Enter Class</a>
+
+<a href="/exit" class="btn btn-exit">Exit Class</a>
+
+<a href="/logs" class="btn btn-secondary">View Logs</a>
+
+<a href="/reset_today" class="btn btn-warning">Reset Today Log</a>
+
+</div>
+
+<h5>Today's Log</h5>
+
+{% if log %}
+
+<p><b>Entry:</b> {{log[0]}}</p>
+<p><b>Exit:</b> {{log[1]}}</p>
+
+{% else %}
+
+<p>No record today</p>
+
+{% endif %}
+
+<hr>
+
+<h5>Work Completed Today</h5>
+
+<form method="POST" action="/save_work">
+
+<textarea
+class="form-control mb-3"
+name="work_done"
+rows="4"
+required
+placeholder="Write what work you completed today..."></textarea>
+
+<button class="btn btn-enter">Save Work</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
