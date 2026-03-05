@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 import sqlite3
 from datetime import datetime
 import pytz
@@ -8,11 +8,15 @@ import pytz
 app = Flask(__name__)
 app.secret_key = "secret"
 
+# Indian timezone
+IST = pytz.timezone("Asia/Kolkata")
+
+
 def get_db():
     return sqlite3.connect("database.db")
 
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
@@ -43,7 +47,7 @@ def dashboard():
     db = get_db()
     cur = db.cursor()
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(IST).strftime("%Y-%m-%d")
 
     cur.execute(
         "SELECT entry_time, exit_time, work_done FROM logs WHERE user_id=? AND date=?",
@@ -54,6 +58,7 @@ def dashboard():
 
     return render_template("dashboard.html", log=log, name=session["name"])
 
+
 @app.route("/enter")
 def enter():
 
@@ -63,11 +68,10 @@ def enter():
     db = get_db()
     cur = db.cursor()
 
-    now = datetime.now()
+    now = datetime.now(IST)
     date = now.strftime("%Y-%m-%d")
-    time = now.strftime("%H:%M:%S")
+    time = now.strftime("%I:%M:%S %p")
 
-    # Check if entry already exists today
     cur.execute(
         "SELECT * FROM logs WHERE user_id=? AND date=?",
         (session["user_id"], date)
@@ -78,9 +82,8 @@ def enter():
     if existing_log:
         return redirect("/dashboard")
 
-    # Insert entry if not already entered
     cur.execute(
-        "INSERT INTO logs (user_id,date,entry_time) VALUES (?,?,?)",
+        "INSERT INTO logs (user_id, date, entry_time) VALUES (?, ?, ?)",
         (session["user_id"], date, time)
     )
 
@@ -98,9 +101,9 @@ def exit():
     db = get_db()
     cur = db.cursor()
 
-    now = datetime.now()
+    now = datetime.now(IST)
     date = now.strftime("%Y-%m-%d")
-    time = now.strftime("%H:%M:%S")
+    time = now.strftime("%I:%M:%S %p")
 
     cur.execute("""
         SELECT * FROM logs
@@ -133,11 +136,11 @@ def logs():
     cur = db.cursor()
 
     cur.execute("""
-SELECT users.name, logs.date, logs.entry_time, logs.exit_time, logs.work_done
-FROM logs
-JOIN users ON users.id = logs.user_id
-ORDER BY logs.date DESC
-""")
+        SELECT users.name, logs.date, logs.entry_time, logs.exit_time, logs.work_done
+        FROM logs
+        JOIN users ON users.id = logs.user_id
+        ORDER BY logs.date DESC
+    """)
 
     data = cur.fetchall()
 
@@ -154,8 +157,7 @@ def save_work():
     cur = db.cursor()
 
     work = request.form["work_done"]
-
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(IST).strftime("%Y-%m-%d")
 
     cur.execute("""
         UPDATE logs
@@ -170,7 +172,7 @@ def save_work():
 
 @app.route("/logout")
 def logout():
-    
+
     session.clear()
     return redirect("/")
 
@@ -184,7 +186,7 @@ def reset_today():
     db = get_db()
     cur = db.cursor()
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(IST).strftime("%Y-%m-%d")
 
     cur.execute("""
         DELETE FROM logs
