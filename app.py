@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -193,8 +194,6 @@ def reset_today():
 
     return redirect("/dashboard")
 
-
-import os
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
